@@ -1,0 +1,30 @@
+{
+  "name": "docker-dns",
+  "version": "0.0.1",
+  "description": "This is a simple DNS Resolver for docker containers",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nimda95/docker-dns.git"
+  },
+  "keywords": [
+    "docker-dns-proxy",
+    "docker-resolver",
+    "docker-dns-resolver",
+    "docker-dns"
+  ],
+  "author": "Aymane Taibi",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/nimda95/docker-dns/issues"
+  },
+  "homepage": "https://github.com/nimda95/docker-dns#readme",
+  "dependencies": {
+    "dockerode": "^3.3.0",
+    "native-node-dns": "^0.7.6",
+    "os": "^0.1.2"
+  }
+}
