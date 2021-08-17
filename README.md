@@ -17,7 +17,9 @@ git clone https://github.com/nimda95/docker-dns.git
 docker build -t \<local-name-for-this-image-build\> .
 ```
 ### Pull from [docker hub](https://hub.docker.com)
-Not yet deployed to docker hub (didn't have time yet)
+```bash
+docker pull shimgapi/docker-dns
+```
 
 ## Usage
 
