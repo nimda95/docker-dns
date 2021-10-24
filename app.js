@@ -42,9 +42,8 @@ server.on('request', async (req, res) => {
       console.warn(`Querying remote resolver to get response for ${question.name} of type ${dns.consts.QTYPE_TO_NAME[question.type]}`);
       const remoteAnswers = await remoteLookup(question);
       for(const remoteAnswer of remoteAnswers){
-        const type = dns[dns.consts.QTYPE_TO_NAME[question.type]];
         for(const answer of remoteAnswer.answer){
-          res.answer.push(type(answer));
+          res.answer.push(dns[dns.consts.QTYPE_TO_NAME[answer.type]](answer));
         }
       }
       continue;
