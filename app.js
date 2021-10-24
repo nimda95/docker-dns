@@ -36,10 +36,17 @@ setInterval(refreshDockerAddresses, parseInt(process.env.AUTO_REFRESH_INTERVAL |
 
 const server = dns.createServer();
 
-server.on('request', function (req, res) {
+server.on('request', async (req, res) => {
   for(const question of req.question){
     if(!dockerContainersDbMap[question.name] || question.type.toString() !== '1'){
-      console.warn(`Don't have any records for ${question.name} of type ${dns.consts.NAME_TO_QTYPE[question.type]}`)
+      console.warn(`Querying remote resolver to get response for ${question.name} of type ${dns.consts.QTYPE_TO_NAME[question.type]}`);
+      const remoteAnswers = await remoteLookup(question);
+      for(const remoteAnswer of remoteAnswers){
+        const type = dns[dns.consts.QTYPE_TO_NAME[question.type]];
+        for(const answer of remoteAnswer.answer){
+          res.answer.push(type(answer));
+        }
+      }
       continue;
     }
     dockerContainersDbMap[question.name].map(ipAddress => {
@@ -70,3 +77,31 @@ server.on('close', () => {
 });
 
 server.serve(parseInt(process.env.DNS_LISTEN_PORT || 53));
+
+const remoteLookup = async (question) => {
+  return new Promise((resolve, reject) => {
+    const answers = [];
+    var remoteReq = dns.Request({
+      question: question,
+      server: { address: process.env.REMOTE_RESOLVER_ADDR || `1.1.1.1`, port: process.env.REMOTE_RESOLVER_PORT || 53, type: 'udp' },
+      timeout: 1000,
+    });
+    remoteReq.on('timeout', () => {
+      reject('Timeout in making request');
+    });
+    
+    remoteReq.on('message', (err, answer) => {
+      if(err) {
+        reject(err);
+        return;
+      }
+      answers.push(answer);
+    });
+    
+    remoteReq.on('end', function () {
+      resolve(answers);
+    });
+    
+    remoteReq.send();
+  });
+}
