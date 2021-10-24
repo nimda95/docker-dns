@@ -38,7 +38,7 @@ const server = dns.createServer();
 
 server.on('request', async (req, res) => {
   for(const question of req.question){
-    if(!dockerContainersDbMap[question.name] || question.type.toString() !== '1'){
+    if(!dockerContainersDbMap[question.name]){
       console.warn(`Querying remote resolver to get response for ${question.name} of type ${dns.consts.QTYPE_TO_NAME[question.type]}`);
       const remoteAnswers = await remoteLookup(question);
       for(const remoteAnswer of remoteAnswers){
