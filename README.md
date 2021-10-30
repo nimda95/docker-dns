@@ -37,6 +37,8 @@ You can customize this image to your environment by changing these env variables
 |-----------------------|--------------------------------------------------------------|-------------|
 |`AUTO_REFRESH_INTERVAL`|Time in milliseconds to refresh the list of running containers|`5000`       |
 |`DNS_LISTEN_PORT`      |Port for the DNS to listen on                                 |`53`         |
+|`REMOTE_RESOLVER_ADDR` |resolver address to be used to lookup internet addresses      |`1.1.1.1`    |
+|`REMOTE_RESOLVER_PORT` |resolver port to be used to lookup internet addresses         |`53`         |
 
 ## Help
 PRs are welcome.
