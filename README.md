@@ -33,12 +33,13 @@ Choose from from the IPs  that are displayed in the logs and add the suitable on
 
 You can customize this image to your environment by changing these env variables 
 
-| Name                  |Description                                                   |Default Value|
-|-----------------------|--------------------------------------------------------------|-------------|
-|`AUTO_REFRESH_INTERVAL`|Time in milliseconds to refresh the list of running containers|`5000`       |
-|`DNS_LISTEN_PORT`      |Port for the DNS to listen on                                 |`53`         |
-|`REMOTE_RESOLVER_ADDR` |resolver address to be used to lookup internet addresses      |`1.1.1.1`    |
-|`REMOTE_RESOLVER_PORT` |resolver port to be used to lookup internet addresses         |`53`         |
+| Name                  |Description                                                                |Default Value|
+|-----------------------|---------------------------------------------------------------------------|-------------|
+|`AUTO_REFRESH_INTERVAL`|Time in milliseconds to refresh the list of running containers             |`5000`       |
+|`DNS_LISTEN_PORT`      |Port for the DNS to listen on                                              |`53`         |
+|`REMOTE_RESOLVER_ADDR` |resolver address to be used to lookup internet addresses                   |`1.1.1.1`    |
+|`REMOTE_RESOLVER_PORT` |resolver port to be used to lookup internet addresses                      |`53`         |
+|`LIMIT_NETWORKS`       |networks to include ips from in the lookup separated by comma (default=all)|``           |
 
 ## Help
 PRs are welcome.

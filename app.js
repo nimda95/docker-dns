@@ -7,27 +7,36 @@ const dockerSock = new Docker({
   socketPath: process.env.DOCKER_SOCK_PATH || '/var/run/docker.sock'
 });
 
+const networksToInclude = process.env.LIMIT_NETWORKS?.split(',');
+
+
 const dockerContainersDbMap = {};
 const refreshDockerAddresses = () => {
   dockerSock.listContainers().then(containersList => {
     containersList
-      .filter(container => container.State === 'running')
-      .map(containerInfo => {
-        for(const networksIndex in containerInfo.NetworkSettings.Networks){
-          const ipAddress = containerInfo.NetworkSettings.Networks[networksIndex].IPAddress;
-          for(const containerInfoIndex in containerInfo.Names){
-            const name = containerInfo.Names[containerInfoIndex].substring(1);
-            // duno why, but the library return an array of names for each container, and all starting with a slash at the beginning so, it is what it is !!
-            if(!dockerContainersDbMap[name]){
-              console.log(`Found a container ${containerInfo.Names.map(name => name.substring(1)).join(', ')}`);
-              dockerContainersDbMap[name] = [];
-            }
-            if(dockerContainersDbMap[name].indexOf(ipAddress) === -1){
-              dockerContainersDbMap[name].push(ipAddress);
-            }
+      .map(container => {
+        container.Names.map(name => {
+          if(container.State !== 'running' && dockerContainersDbMap[name]) {
+            console.log(`Delete container "${name}" from IP Database`);
+            delete dockerContainersDbMap[name];
+            return true;
           }
-        }
+
+          console.log(`Found a container ${name}`);
+          const tmpDb = [];
+          for (const networkName in container.NetworkSettings.Networks) {
+            if(networksToInclude?.indexOf(networkName) === -1) continue;
+            tmpDb.push(container.NetworkSettings.Networks[networkName].IPAddress);
+          }
+          dockerContainersDbMap[name] = tmpDb;
+        });
       });
+      for(const name in dockerContainersDbMap){
+        console.log(`Delete container with no IPs ${name}`);
+        if(!dockerContainersDbMap[name].length) {
+          delete dockerContainersDbMap[name];
+        }
+      }
   })
   .catch(console.error);
 }
@@ -38,7 +47,7 @@ const server = dns.createServer();
 
 server.on('request', async (req, res) => {
   for(const question of req.question){
-    if(!dockerContainersDbMap[question.name]){
+    if(!dockerContainersDbMap[`/${question.name}`]){
       console.warn(`Querying remote resolver to get response for ${question.name} of type ${dns.consts.QTYPE_TO_NAME[question.type]}`);
       const remoteAnswers = await remoteLookup(question);
       for(const remoteAnswer of remoteAnswers){
@@ -48,7 +57,7 @@ server.on('request', async (req, res) => {
       }
       continue;
     }
-    dockerContainersDbMap[question.name].map(ipAddress => {
+    dockerContainersDbMap[`/${question.name}`].map(ipAddress => {
       res.answer.push(dns.A({
         name: question.name,
         address: ipAddress,
