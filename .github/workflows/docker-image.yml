@@ -16,3 +16,7 @@ jobs:
     - uses: actions/checkout@v2
     - name: Build the Docker image
       run: docker build . --file Dockerfile --tag docker-dns:latest
+    - name: Login to Docker Hub
+      run: docker login -u shimgapi -p $DOCKER_SECRET docker.io
+    - name: Push image
+      run: docker push docker-dns:latest
